@@ -1,0 +1,13 @@
+name: postgres-model
+
+services:
+  database:
+    image: postgres:15.18-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${ROOT_USERNAME}
+      POSTGRES_PASSWORD: ${ROOT_PASSWORD}
+      POSTGRES_DB: reports_manager_db
+    ports:
+      - "5432:5432"
+    restart: always

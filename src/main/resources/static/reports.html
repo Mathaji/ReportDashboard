@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Directory — QA Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F6F8F9;
+            --paper-line: #CBD5DC;
+            --ink: #16212B;
+            --ink-soft: #5B6B78;
+            --card: #FFFFFF;
+            --shadow: rgba(22, 33, 43, 0.08);
+
+            --pass: #1C8F5E;   --pass-dim: #E4F3EC;
+            --fail: #C4432E;   --fail-dim: #FBE7E2;
+            --broken: #8B5CF6; --broken-dim: #EFE9FD;
+            --incomplete: #C9891C; --incomplete-dim: #FBF0DD;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background:
+                    linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0 / 100% 32px,
+                    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0 / 32px 100%,
+                    var(--paper);
+            background-attachment: fixed;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 40px 24px 80px;
+        }
+
+        .wrap { max-width: 1100px; margin: 0 auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-bottom: 24px;
+            border-bottom: 1px dashed var(--paper-line);
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin: 0 0 6px;
+        }
+
+        h1 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .stats {
+            display: flex;
+            gap: 22px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .stat { text-align: right; }
+        .stat .n { font-size: 22px; font-weight: 700; line-height: 1; }
+        .stat .l { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+        .stat.pass .n { color: var(--pass); }
+        .stat.fail .n { color: var(--fail); }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .chip {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 8px 14px;
+            border: 1px solid var(--paper-line);
+            background: var(--card);
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .chip:hover { border-color: var(--ink); color: var(--ink); }
+        .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+        .search {
+            margin-left: auto;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            border: 1px solid var(--paper-line);
+            background: var(--card);
+            padding: 8px 14px;
+            min-width: 200px;
+            outline: none;
+        }
+        .search:focus { border-color: var(--ink); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--paper-line);
+            box-shadow: 0 10px 24px -18px var(--shadow);
+            padding: 18px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .card:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -16px var(--shadow); }
+
+        .folder-btn {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: var(--ink-soft);
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+
+        .folder-btn:hover { color: var(--ink); transform: scale(1.06); }
+        .folder-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 3px; }
+        .folder-btn svg { width: 38px; height: 38px; display: block; }
+
+        .meta { min-width: 0; flex: 1; }
+
+        .filename {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin: 0 0 4px;
+            word-break: break-word;
+        }
+
+        .path {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ink-soft);
+            margin: 0 0 10px;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .row2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            text-transform: uppercase;
+        }
+
+        .badge.PASSED { color: var(--pass); background: var(--pass-dim); }
+        .badge.FAILED { color: var(--fail); background: var(--fail-dim); }
+        .badge.BROKEN { color: var(--broken); background: var(--broken-dim); }
+        .badge.INCOMPLETE { color: var(--incomplete); background: var(--incomplete-dim); }
+
+        .squad {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 11px;
+            color: var(--ink-soft);
+        }
+
+        .empty {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--ink-soft);
+            padding: 60px 0;
+            text-align: center;
+            display: none;
+        }
+        .empty.show { display: block; }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--pass);
+            background: var(--pass-dim);
+            border: 1px solid var(--pass);
+            padding: 10px 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <header>
+        <div>
+            <p class="eyebrow">Quality Assurance / Reports</p>
+            <h1>Reports Directory</h1>
+        </div>
+        <div class="stats">
+            <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Total</div></div>
+            <div class="stat pass"><div class="n" id="statPass">0</div><div class="l">Passed</div></div>
+            <div class="stat fail"><div class="n" id="statFail">0</div><div class="l">Failed</div></div>
+        </div>
+    </header>
+
+    <div class="controls" id="statusFilters">
+        <button class="chip active" data-status="ALL">All</button>
+        <button class="chip" data-status="PASSED">Passed</button>
+        <button class="chip" data-status="FAILED">Failed</button>
+        <button class="chip" data-status="BROKEN">Broken</button>
+        <button class="chip" data-status="INCOMPLETE">Incomplete</button>
+        <input class="search" id="search" type="text" placeholder="search filename or squad…">
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty">No reports match this filter.</p>
+</div>
+
+<div class="toast" id="toast">✓ Path copied to clipboard</div>
+
+<script>
+    // Replace with a real fetch, e.g.:
+    // const reports = await fetch('/v1/reports').then(r => r.json());
+    const reports = [
+        { filename: 'checkout-flow-e2e.pdf',   folderPath: 'C:\\Users\\Reports\\Backend\\checkout-flow-e2e.pdf',   squad: 'Backend',  status: 'PASSED',     date: '2026-07-10' },
+        { filename: 'login-regression.pdf',    folderPath: 'C:\\Users\\Reports\\Backend\\login-regression.pdf',    squad: 'Backend',  status: 'FAILED',     date: '2026-07-11' },
+        { filename: 'nav-a11y-audit.pdf',      folderPath: 'C:\\Users\\Reports\\Frontend\\nav-a11y-audit.pdf',     squad: 'Frontend', status: 'PASSED',     date: '2026-07-09' },
+        { filename: 'cart-sync-smoke.pdf',     folderPath: 'C:\\Users\\Reports\\Frontend\\cart-sync-smoke.pdf',    squad: 'Frontend', status: 'BROKEN',     date: '2026-07-12' },
+        { filename: 'payments-webhook.pdf',    folderPath: 'C:\\Users\\Reports\\Platform\\payments-webhook.pdf',   squad: 'Platform', status: 'INCOMPLETE', date: '2026-07-08' },
+        { filename: 'search-index-perf.pdf',   folderPath: 'C:\\Users\\Reports\\Platform\\search-index-perf.pdf',  squad: 'Platform', status: 'PASSED',     date: '2026-07-13' },
+    ];
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    const search = document.getElementById('search');
+    const filters = document.getElementById('statusFilters');
+    const toast = document.getElementById('toast');
+
+    let activeStatus = 'ALL';
+
+    const folderIcon = `
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 12c0-1.1.9-2 2-2h9l3 3h16c1.1 0 2 .9 2 2v13c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V12z"
+            fill="currentColor" opacity="0.12"/>
+      <path d="M4 12c0-1.1.9-2 2-2h9l3 3h16c1.1 0 2 .9 2 2v13c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V12z"
+            stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>`;
+
+    function render() {
+        const q = search.value.trim().toLowerCase();
+
+        const filtered = reports.filter(r => {
+            const statusOk = activeStatus === 'ALL' || r.status === activeStatus;
+            const qOk = !q || r.filename.toLowerCase().includes(q) || r.squad.toLowerCase().includes(q);
+            return statusOk && qOk;
+        });
+
+        grid.innerHTML = filtered.map(r => `
+      <div class="card">
+        <button class="folder-btn" title="Copy path" data-path="${r.folderPath.replace(/"/g, '&quot;')}">
+          ${folderIcon}
+        </button>
+        <div class="meta">
+          <p class="filename">${r.filename}</p>
+          <p class="path">${r.folderPath}</p>
+          <div class="row2">
+            <span class="badge ${r.status}">${r.status}</span>
+            <span class="squad">${r.squad} · ${r.date}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+        empty.classList.toggle('show', filtered.length === 0);
+
+        document.getElementById('statTotal').textContent = reports.length;
+        document.getElementById('statPass').textContent = reports.filter(r => r.status === 'PASSED').length;
+        document.getElementById('statFail').textContent = reports.filter(r => r.status === 'FAILED').length;
+    }
+
+    filters.addEventListener('click', (e) => {
+        const btn = e.target.closest('.chip');
+        if (!btn) return;
+        filters.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        activeStatus = btn.dataset.status;
+        render();
+    });
+
+    search.addEventListener('input', render);
+
+    grid.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.folder-btn');
+        if (!btn) return;
+        const path = btn.dataset.path;
+
+        // Browsers can't open a local filesystem path directly for security reasons.
+        // Copying it is the safe fallback; swap this for `window.open(fileUrl)` if
+        // serving folderPath as a proper file:// or internal file-server URL.
+        try {
+            await navigator.clipboard.writeText(path);
+        } catch (_) { /* clipboard API unavailable — path is still visible on the card */ }
+
+        toast.classList.add('show');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    });
+
+    render();
+</script>
+
+</body>
+</html>

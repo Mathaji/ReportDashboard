@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Registration — QA Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F6F8F9;
+            --paper-line: #CBD5DC;
+            --ink: #16212B;
+            --ink-soft: #5B6B78;
+            --pass: #1C8F5E;
+            --pass-dim: #E4F3EC;
+            --pending: #C9891C;
+            --pending-dim: #FBF0DD;
+            --card: #FFFFFF;
+            --shadow: rgba(22, 33, 43, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background:
+                    linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0 / 100% 32px,
+                    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0 / 32px 100%,
+                    var(--paper);
+            background-attachment: fixed;
+            opacity: 1;
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+        }
+
+        .sheet {
+            width: 100%;
+            max-width: 620px;
+            background: var(--card);
+            border: 1px solid var(--paper-line);
+            box-shadow: 0 24px 60px -20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sheet::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 6px solid transparent;
+            border-image: repeating-linear-gradient(90deg, var(--ink) 0 14px, transparent 14px 24px) 6;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+
+        .header {
+            padding: 28px 36px 24px;
+            border-bottom: 1px dashed var(--paper-line);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin: 0 0 6px;
+        }
+
+        h1 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .doc-id {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ink-soft);
+            text-align: right;
+            line-height: 1.6;
+            white-space: nowrap;
+            padding-top: 2px;
+        }
+
+        .doc-id span { color: var(--ink); font-weight: 600; }
+
+        form {
+            padding: 8px 36px 36px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 148px 1fr;
+            align-items: center;
+            border-bottom: 1px solid var(--paper-line);
+            padding: 18px 0;
+            gap: 16px;
+        }
+
+        .row:first-of-type { border-top: 1px solid var(--paper-line); margin-top: 20px; }
+
+        label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+        }
+
+        label .req { color: var(--pending); margin-left: 4px; }
+
+        input {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 16px;
+            color: var(--ink);
+            border: none;
+            background: transparent;
+            padding: 6px 0;
+            outline: none;
+            width: 100%;
+        }
+
+        input::placeholder { color: #A8B3BC; }
+
+        input:focus {
+            outline: 2px solid var(--pass);
+            outline-offset: 4px;
+            border-radius: 2px;
+        }
+
+        .hint {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin: 22px 0 0;
+            line-height: 1.6;
+        }
+
+        .actions {
+            margin-top: 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        button {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #fff;
+            background: var(--ink);
+            border: none;
+            padding: 14px 26px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        button:hover { background: #29394A; }
+        button:active { transform: translateY(1px); }
+
+        .status-line {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--ink-soft);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--paper-line);
+            transition: background 0.2s ease;
+        }
+
+        .dot.live { background: var(--pending); box-shadow: 0 0 0 3px var(--pending-dim); }
+
+        /* Stamp */
+        .stamp-wrap {
+            position: absolute;
+            top: 26px;
+            right: 36px;
+            width: 92px;
+            height: 92px;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(1.4) rotate(-18deg);
+            transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+        }
+
+        .stamp-wrap.show {
+            opacity: 1;
+            transform: scale(1) rotate(-12deg);
+        }
+
+        .stamp-wrap svg { width: 100%; height: 100%; }
+
+        .toast {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--pass);
+            background: var(--pass-dim);
+            border: 1px solid var(--pass);
+            padding: 10px 14px;
+            margin: 20px 36px 0;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show { display: flex; }
+
+        @media (max-width: 480px) {
+            .row { grid-template-columns: 1fr; gap: 4px; }
+            .header { flex-direction: column; }
+            .doc-id { text-align: left; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sheet">
+    <div class="stamp-wrap" id="stamp">
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="none" stroke="#1C8F5E" stroke-width="3"/>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#1C8F5E" stroke-width="1.5"/>
+            <text x="50" y="46" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" fill="#1C8F5E">ENGINEER</text>
+            <text x="50" y="60" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" fill="#1C8F5E">REGISTERED</text>
+        </svg>
+    </div>
+
+    <div class="header">
+        <div>
+            <p class="eyebrow">Quality Assurance / Onboarding</p>
+            <h1>Engineer Registration</h1>
+        </div>
+        <div class="doc-id">
+            FORM <span>QA-REG-01</span><br>
+            REV <span>2026.07</span>
+        </div>
+    </div>
+
+    <form id="regForm">
+        <div class="row">
+            <label for="firstName">First Name<span class="req">*</span></label>
+            <input id="firstName" name="firstName" type="text" placeholder="Jane" autocomplete="given-name" required>
+        </div>
+        <div class="row">
+            <label for="lastName">Last Name<span class="req">*</span></label>
+            <input id="lastName" name="lastName" type="text" placeholder="Doe" autocomplete="family-name" required>
+        </div>
+        <div class="row">
+            <label for="username">Username<span class="req">*</span></label>
+            <input id="username" name="username" type="text" placeholder="jdoe" autocomplete="username" maxlength="20" required>
+        </div>
+
+        <p class="hint">Username is limited to 20 characters and must be unique across all engineers.</p>
+
+        <div class="actions">
+            <button type="submit">Submit Registration</button>
+            <div class="status-line"><span class="dot" id="statusDot"></span><span id="statusText">awaiting input</span></div>
+        </div>
+    </form>
+
+    <div class="toast" id="toast">✓ <span id="toastText"></span></div>
+</div>
+
+<script>
+    const form = document.getElementById('regForm');
+    const dot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const stamp = document.getElementById('stamp');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    form.addEventListener('input', () => {
+        const filled = [...form.elements].filter(el => el.tagName === 'INPUT').every(el => el.value.trim().length > 0);
+        dot.classList.toggle('live', filled);
+        statusText.textContent = filled ? 'ready to submit' : 'awaiting input';
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const payload = {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            username: document.getElementById('username').value.trim()
+        };
+
+        // Wire this up to your endpoint, e.g.:
+        // fetch('/v1/engineer/register', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(payload)
+        // });
+
+        console.log('Submitting engineer:', payload);
+
+        stamp.classList.add('show');
+        toastText.textContent = `${payload.firstName} ${payload.lastName} (@${payload.username}) registered.`;
+        toast.classList.add('show');
+        statusText.textContent = 'submitted';
+    });
+</script>
+
+</body>
+</html>
