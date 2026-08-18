@@ -18,7 +18,7 @@ import java.util.Locale;
  * Service class handling business logic for Quality Assurance engineers.
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Service

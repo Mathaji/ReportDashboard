@@ -12,7 +12,7 @@ import java.util.Set;
  * Entity class mapping the database schema for Quality Assurance engineers.
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Data

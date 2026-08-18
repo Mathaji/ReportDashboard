@@ -15,7 +15,7 @@ import java.util.List;
  * Controller class to handle requests regarding the Engineer
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @RestController

@@ -11,7 +11,7 @@ package com.reports.quality_assurance.model;
  * </ul>
  *
  * @author Karabo Phoshoko
- * version: 26.0.0.1
+ * version: 26.0.0
  */
 
 public enum ReportStatus

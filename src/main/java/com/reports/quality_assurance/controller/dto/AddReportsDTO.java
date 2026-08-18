@@ -9,7 +9,7 @@ import java.nio.file.Path;
  * DTO class handling incoming details for new reports.
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Getter

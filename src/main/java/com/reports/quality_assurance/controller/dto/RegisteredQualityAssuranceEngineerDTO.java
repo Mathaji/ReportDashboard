@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * @param timeAccountCreated the time the Quality Assurance Engineer's account was created
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 public record RegisteredQualityAssuranceEngineerDTO (

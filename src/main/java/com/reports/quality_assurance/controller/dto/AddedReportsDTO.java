@@ -10,7 +10,7 @@ import com.reports.quality_assurance.model.ReportStatus;
  * @param status the status of the report
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 public record AddedReportsDTO (

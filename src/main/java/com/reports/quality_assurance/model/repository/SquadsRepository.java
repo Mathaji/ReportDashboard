@@ -10,7 +10,7 @@ import java.util.Optional;
  * Repository interface for managing interactions with {@link Squads}
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Repository

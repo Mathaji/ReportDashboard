@@ -13,7 +13,7 @@ import java.time.LocalDate;
  * Entity class mapping a database schema for a Reports model
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Data

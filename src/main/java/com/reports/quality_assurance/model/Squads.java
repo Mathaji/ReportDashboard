@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  * Entity class mapping the database schema for a Squads model
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Data

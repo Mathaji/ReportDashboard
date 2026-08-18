@@ -14,7 +14,7 @@ import java.util.List;
  * Repository interface for managing interactions with {@link Reports}
  *
  * @author Karabo Phoshoko
- * @version 26.0.0.1
+ * @version 26.0.0
  */
 
 @Repository
