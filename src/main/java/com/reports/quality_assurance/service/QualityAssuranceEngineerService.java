@@ -1,7 +1,7 @@
 package com.reports.quality_assurance.service;
 
-import com.reports.quality_assurance.controller.dto.RegisterQualityAssuranceEngineerDTO;
-import com.reports.quality_assurance.controller.dto.RegisteredQualityAssuranceEngineerDTO;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisterQualityAssuranceEngineerDTO;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisteredQualityAssuranceEngineerDTO;
 import com.reports.quality_assurance.model.QualityAssuranceEngineers;
 import com.reports.quality_assurance.model.repository.QualityAssuranceEngineersRepository;
 import lombok.RequiredArgsConstructor;

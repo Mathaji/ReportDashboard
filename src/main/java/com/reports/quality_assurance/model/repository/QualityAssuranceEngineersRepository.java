@@ -1,14 +1,13 @@
 package com.reports.quality_assurance.model.repository;
 
-import com.reports.quality_assurance.model.QualityAssuranceEngineers;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import com.reports.quality_assurance.model.QualityAssuranceEngineers;
 
 /**
  * Repository interface for managing interactions with {@link QualityAssuranceEngineers}

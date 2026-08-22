@@ -1,4 +1,4 @@
-package com.reports.quality_assurance.controller.dto;
+package com.reports.quality_assurance.dtos.Reports;
 
 
 import java.time.LocalDate;

@@ -1,8 +1,8 @@
 package com.reports.quality_assurance.controller;
 
-import com.reports.quality_assurance.controller.dto.AddReportsDTO;
-import com.reports.quality_assurance.controller.dto.ReportsByNameDTO;
-import com.reports.quality_assurance.controller.dto.AddedReportsDTO;
+import com.reports.quality_assurance.dtos.Reports.AddReportsDTO;
+import com.reports.quality_assurance.dtos.Reports.ReportsByNameDTO;
+import com.reports.quality_assurance.dtos.Reports.AddedReportsDTO;
 import com.reports.quality_assurance.model.ReportStatus;
 import com.reports.quality_assurance.model.Reports;
 import com.reports.quality_assurance.service.ReportsService;
