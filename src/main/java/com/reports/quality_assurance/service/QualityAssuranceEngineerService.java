@@ -1,7 +1,9 @@
 package com.reports.quality_assurance.service;
 
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.QualityAssuranceEngineerMapper;
 import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisterQualityAssuranceEngineerDTO;
-import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisteredQualityAssuranceEngineerDTO;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.ViewEngineerDTO;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.ViewNewEngineerDTO;
 import com.reports.quality_assurance.model.QualityAssuranceEngineers;
 import com.reports.quality_assurance.model.repository.QualityAssuranceEngineersRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +38,10 @@ public class QualityAssuranceEngineerService {
      * @throws IllegalArgumentException if the username provided is already in use
      */
     @Transactional
-    public RegisteredQualityAssuranceEngineerDTO registerNewEngineer(final RegisterQualityAssuranceEngineerDTO newEngineer) {
+    public ViewNewEngineerDTO registerNewEngineer(final RegisterQualityAssuranceEngineerDTO newEngineer) {
         final QualityAssuranceEngineers engineer;
         final QualityAssuranceEngineers saveEngineer;
+        final ViewNewEngineerDTO registeredEngineer;
 
         engineer = new QualityAssuranceEngineers();
 
@@ -47,16 +50,29 @@ public class QualityAssuranceEngineerService {
             throw new IllegalArgumentException("Username already in use");
         }
 
-        //
-        engineer.setFirstName(newEngineer.getFirstName());
-        engineer.setLastName(newEngineer.getLastName());
-        engineer.setUsername(newEngineer.getUsername());
-        saveEngineer = engineersRepository.save(engineer);
+        // Save the values to the database
+        {
+            engineer.setFirstName(newEngineer.getFirstName());
+            engineer.setLastName(newEngineer.getLastName());
+            engineer.setUsername(newEngineer.getUsername());
+            saveEngineer = engineersRepository.save(engineer);
+        }
 
-        return new RegisteredQualityAssuranceEngineerDTO(saveEngineer.getEngineerId(),
-                                               saveEngineer.getUsername(),
-                                               saveEngineer.getAccountCreated()
-        );
+        // Set DTO values
+        final String engineerFullName;
+        final String engineerUsername;
+        final LocalDate    dateAccountCreated;
+
+        engineerFullName = saveEngineer.getFirstName() + " " + saveEngineer.getLastName();
+        engineerUsername = saveEngineer.getUsername();
+        dateAccountCreated = LocalDate.from(saveEngineer.getAccountCreated());
+
+        registeredEngineer = new ViewNewEngineerDTO(
+                            engineerFullName,
+                            engineerUsername,
+                            dateAccountCreated);
+
+        return registeredEngineer;
     }
 
 
@@ -66,8 +82,15 @@ public class QualityAssuranceEngineerService {
      * @return a list containing all engineers, or an empty list if none exist
      */
     @Transactional(readOnly = true)
-    public List<QualityAssuranceEngineers> getAllEngineers() {
-        return engineersRepository.findAll();
+    public List<ViewEngineerDTO> getAllEngineers() {
+        final List<QualityAssuranceEngineers> engineers;
+
+        engineers = engineersRepository.findAll();
+
+        return engineers
+                .stream()
+                .map(QualityAssuranceEngineerMapper::toDto)
+                .toList();
     }
 
     /**
@@ -79,8 +102,7 @@ public class QualityAssuranceEngineerService {
      * @throws IllegalArgumentException if list is empty or null
      */
     @Transactional(readOnly = true)
-    public List<QualityAssuranceEngineers> getEngineersInRange(final String startDate, final String endDate)
-    {
+    public List<ViewEngineerDTO> getEngineersInRange(final String startDate, final String endDate) {
         final DateTimeFormatter dateFormat;
         final LocalDate         formattedStartDate;
         final LocalDate         formattedEndDate;
@@ -98,6 +120,9 @@ public class QualityAssuranceEngineerService {
             throw new IllegalArgumentException(String.format("No Engineer accounts created between: %s and %s found", startDate, endDate));
         }
 
-        return foundEngineers;
+        return foundEngineers
+                .stream()
+                .map(QualityAssuranceEngineerMapper::toDto)
+                .toList();
     }
 }

@@ -13,8 +13,8 @@ import java.nio.file.Path;
  */
 
 @Getter
-public class AddReportsDTO
-{
+public class AddReportsDTO {
+
     private final String       user;
     private final String       squad;
     private final String       filename;

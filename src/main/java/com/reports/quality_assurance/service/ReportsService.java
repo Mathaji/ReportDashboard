@@ -1,8 +1,6 @@
 package com.reports.quality_assurance.service;
 
-import com.reports.quality_assurance.dtos.Reports.AddReportsDTO;
-import com.reports.quality_assurance.dtos.Reports.ReportsByNameDTO;
-import com.reports.quality_assurance.dtos.Reports.AddedReportsDTO;
+import com.reports.quality_assurance.dtos.Reports.*;
 import com.reports.quality_assurance.model.QualityAssuranceEngineers;
 import com.reports.quality_assurance.model.ReportStatus;
 import com.reports.quality_assurance.model.Reports;
@@ -52,13 +50,14 @@ public class ReportsService {
      *                                  </ul>
      */
     @Transactional
-    public AddedReportsDTO addReport(final AddReportsDTO newReport) {
+    public ViewReportsDTO addReport(final AddReportsDTO newReport) {
+
         // Models
         final Reports report;
         final Squads  squad;
         final Squads  newSquad;
         final QualityAssuranceEngineers thisEngineer;
-        final AddedReportsDTO             addedReportResponseTemplate;
+        final ViewReportsDTO viewAddedReportDetails;
 
         final Reports saveReport;
 
@@ -116,11 +115,28 @@ public class ReportsService {
             }
         }
 
-        addedReportResponseTemplate = new AddedReportsDTO(saveReport.getFilename(),
-                                          squad.getSquadName(),
-                                          saveReport.getReportStatus());
+        // Set DTO values
+        final String engineerFullName;
+        final String reportFilename;
+        final String reportSquad;
+        final ReportStatus reportStatus;
+        final LocalDate    reportDate;
 
-        return addedReportResponseTemplate;
+        engineerFullName = thisEngineer.getFirstName() + " " + thisEngineer.getLastName();
+        reportFilename = saveReport.getFilename();
+        reportSquad    = squadsRepository.findById(saveReport.getSquadId()).get().getSquadName();
+        reportStatus   = saveReport.getReportStatus();
+        reportDate     = saveReport.getDateUploaded();
+
+        viewAddedReportDetails = new ViewReportsDTO(
+                                    engineerFullName,
+                                    reportFilename,
+                                    reportSquad,
+                                    reportStatus,
+                                    reportDate
+                                    );
+
+        return viewAddedReportDetails;
     }
 
     /**
@@ -130,7 +146,7 @@ public class ReportsService {
      * @throws IllegalArgumentException if list is empty
      */
     @Transactional(readOnly = true)
-    public List<Reports> getAllReports() {
+    public List<ViewReportsDTO> getAllReports() {
 
         final List<Reports> allReports;
         allReports = reportsRepository.findAll();
@@ -138,7 +154,14 @@ public class ReportsService {
         if (allReports.isEmpty()) {
             throw new IllegalArgumentException("No Reports found");
         }
-        return allReports;
+        return allReports
+                .stream()
+                .map(Reports -> new ViewReportsDTO(engineersRepository.findById(Reports.getUploadedBy()).get().getFirstName() + " " + engineersRepository.findById(Reports.getUploadedBy()).get().getLastName(),
+                        Reports.getFilename(),
+                        squadsRepository.findById(Reports.getSquadId()).get().getSquadName(),
+                        Reports.getReportStatus(),
+                        Reports.getDateUploaded()))
+                .toList();
     }
 
     /**
@@ -154,13 +177,13 @@ public class ReportsService {
      *                                  </ul>
      */
     @Transactional(readOnly = true)
-    public ReportsByNameDTO getReportsByName(final String filename) {
+    public ViewReportsDTO getReportsByName(final String filename) {
 
         final Reports createdReports;
         final Squads userSquad;
         final QualityAssuranceEngineers engineer;
         final String engineerFullName;
-        final ReportsByNameDTO reportByName;
+        final ViewReportsDTO reportByName;
 
 
         createdReports = reportsRepository.findByFilename(filename).orElseThrow(() -> new IllegalArgumentException("Report does not exist"));
@@ -168,13 +191,12 @@ public class ReportsService {
         engineer       = engineersRepository.findById(createdReports.getUploadedBy()).orElseThrow(() -> new IllegalArgumentException("Engineer not found"));
         engineerFullName = engineer.getFirstName() + " " + engineer.getLastName();
 
-        reportByName = new ReportsByNameDTO(
-                           engineerFullName,
-                           createdReports.getFilename(),
-                           createdReports.getFolderPath(),
-                           createdReports.getDateUploaded(),
-                           userSquad.getSquadName(),
-                           createdReports.getReportStatus().toString());
+        reportByName = new ViewReportsDTO(
+                engineerFullName,
+                createdReports.getFilename(),
+                userSquad.getSquadName(),
+                createdReports.getReportStatus(),
+                createdReports.getDateUploaded());
 
         return reportByName;
     }
@@ -187,8 +209,7 @@ public class ReportsService {
      * @throws IllegalArgumentException if list is empty or null
      */
     @Transactional(readOnly = true)
-    public List<Reports> getAllReportsByDate(final String dateUploaded)
-    {
+    public List<ViewReportsDTO> getAllReportsByDate(final String dateUploaded) {
         final LocalDate         formattedDate;
         final DateTimeFormatter formatStringDate;
         final List<Reports>     foundReports;
@@ -198,13 +219,21 @@ public class ReportsService {
         formattedDate    = LocalDate.parse(dateUploaded.strip(), formatStringDate);
 
         // Search for the Report
-        foundReports     = reportsRepository.findByDateUploaded(formattedDate);
+        foundReports = reportsRepository.findByDateUploaded(formattedDate);
 
         if(foundReports == null || foundReports.isEmpty())
         {
             throw new IllegalArgumentException(String.format("No Reports uploaded on date: '%s' found", dateUploaded));
         }
-        return foundReports;
+
+        return foundReports
+                .stream()
+                .map(Reports -> new ViewReportsDTO(engineersRepository.findById(Reports.getUploadedBy()).get().getFirstName() + " " + engineersRepository.findById(Reports.getUploadedBy()).get().getLastName(),
+                        Reports.getFilename(),
+                        squadsRepository.findById(Reports.getSquadId()).get().getSquadName(),
+                        Reports.getReportStatus(),
+                        Reports.getDateUploaded()))
+                .toList();
     }
 
     /**
@@ -215,7 +244,7 @@ public class ReportsService {
      * @throws IllegalArgumentException if list is empty or null
      */
     @Transactional(readOnly = true)
-    public List<Reports> getAllReportsByStatus(final ReportStatus status)
+    public List<ViewReportsDTO> getAllReportsByStatus(final ReportStatus status)
     {
         final List<Reports> foundReports;
         foundReports = reportsRepository.findByReportStatus(status);
@@ -224,6 +253,50 @@ public class ReportsService {
             throw new IllegalArgumentException(String.format("No Reports with status: %s found", status));
         }
 
-        return foundReports;
+        return foundReports
+                .stream()
+                .map(Reports -> new ViewReportsDTO(engineersRepository.findById(Reports.getUploadedBy()).get().getFirstName() + " " + engineersRepository.findById(Reports.getUploadedBy()).get().getLastName(),
+                        Reports.getFilename(),
+                        squadsRepository.findById(Reports.getSquadId()).get().getSquadName(),
+                        Reports.getReportStatus(),
+                        Reports.getDateUploaded()))
+                .toList();
+    }
+
+    /**
+     * Deletes a report from the database matching the provided filename
+     *
+     * @param filename the name of the Report to be deleted from the database
+     * @return a DTO confirming that the Report has been deleted
+     * @throws IllegalArgumentException if any of the following validation conditions fail:
+     *                                  <ul>
+     *                                      <li>If the filename is null or empty</li>
+     *                                      <li>If the filename does not exist</li>
+     *                                  </ul>
+     */
+    @Transactional
+    public DeletedReportsDTO deleteReportsByFilename(final String filename) {
+
+        final DeletedReportsDTO deletedReportMessage;
+        final Reports report;
+        final String message;
+
+        if (filename == null || filename.isEmpty())
+        {
+            throw new IllegalArgumentException("No filename was specified to delete");
+        }
+
+        if (reportsRepository.findByFilename(filename).isEmpty()) {
+            throw new IllegalArgumentException(String.format("Report: %s does not exist", filename));
+        }
+
+        report = reportsRepository.findByFilename(filename).get();
+        message = String.format("Report: '%s' deleted Successfully", report.getFilename());
+
+        deletedReportMessage = new DeletedReportsDTO(report.getFilename(),
+                                                     message);
+
+        reportsRepository.deleteByFilename(filename);
+        return deletedReportMessage;
     }
 }

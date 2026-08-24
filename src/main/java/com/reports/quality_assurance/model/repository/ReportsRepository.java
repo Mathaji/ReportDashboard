@@ -43,4 +43,11 @@ public interface ReportsRepository extends JpaRepository<Reports, Long> {
      * @return a list of all the reports with the same queried status
      */
     List<Reports> findByReportStatus(final ReportStatus reportStatus);
+
+    /**
+     * Deletes a Report matching the provided filename from the database
+     *
+     * @param filename the name of the Report to be deleted from the database
+     */
+    void deleteByFilename(final String filename);
 }

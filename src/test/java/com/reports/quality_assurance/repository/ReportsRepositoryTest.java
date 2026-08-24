@@ -7,7 +7,6 @@ import com.reports.quality_assurance.model.Squads;
 import com.reports.quality_assurance.model.repository.QualityAssuranceEngineersRepository;
 import com.reports.quality_assurance.model.repository.ReportsRepository;
 import com.reports.quality_assurance.model.repository.SquadsRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,9 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Test suite for {@link ReportsRepository} to validate standard <b>CRUD operations</b> and <b>Custom Query boundaries</b>:
  * <ul>
@@ -27,6 +29,7 @@ import java.util.List;
  *     <li>{@code findByFilename(String filename)} method to find Reports in the database by <b>their filename</b></li>
  *     <li>{@code findByReportStatus(ReportStatus reportStatus} method to find Reports in the database by <b>their status</b></li>
  *     <li>{@code findByDateUploaded(LocalDate dateUploaded} method to find Reports in the database by <b>the date they were uploaded</b></li>
+ *     <li>{@code deleteByFilename(String filename)} method to delete Reports in the database by <b>their filename</b></li>
  * </ul>
  *
  * @author Karabo Phoshoko
@@ -180,7 +183,7 @@ public class ReportsRepositoryTest {
         report1 = reportsRepository.save(passedReport);
 
         // Assert
-        Assertions.assertNotNull(report1);
+        assertNotNull(report1);
     }
 
     @Test
@@ -200,12 +203,12 @@ public class ReportsRepositoryTest {
         allReports = reportsRepository.findAll();
 
         // Assert
-        Assertions.assertNotNull(allReports);
+        assertNotNull(allReports);
 
-        Assertions.assertEquals(3, allReports.size());
-        Assertions.assertEquals(passedReport1, allReports.getFirst());
-        Assertions.assertEquals(incompleteReport1, allReports.get(1));
-        Assertions.assertEquals(failedReport1, allReports.getLast());
+        assertEquals(3, allReports.size());
+        assertEquals(passedReport1, allReports.getFirst());
+        assertEquals(incompleteReport1, allReports.get(1));
+        assertEquals(failedReport1, allReports.getLast());
     }
 
     @Test
@@ -227,19 +230,19 @@ public class ReportsRepositoryTest {
 
         // Assert
 
-        Assertions.assertNotNull(searchedReport1);
+        assertNotNull(searchedReport1);
 
-        Assertions.assertEquals(brokenReport1, searchedReport1);
-        Assertions.assertEquals(passedReport1, searchedReport2);
+        assertEquals(brokenReport1, searchedReport1);
+        assertEquals(passedReport1, searchedReport2);
 
-        Assertions.assertEquals(brokenReport1.getFilename(), searchedReport1.getFilename());
-        Assertions.assertEquals(passedReport1.getFilename(), searchedReport2.getFilename());
+        assertEquals(brokenReport1.getFilename(), searchedReport1.getFilename());
+        assertEquals(passedReport1.getFilename(), searchedReport2.getFilename());
 
-        Assertions.assertEquals(brokenReport1.getReportStatus(), searchedReport1.getReportStatus());
-        Assertions.assertEquals(passedReport1.getReportStatus(), searchedReport2.getReportStatus());
+        assertEquals(brokenReport1.getReportStatus(), searchedReport1.getReportStatus());
+        assertEquals(passedReport1.getReportStatus(), searchedReport2.getReportStatus());
 
-        Assertions.assertEquals(brokenReport1.getSquadId(), searchedReport1.getSquadId());
-        Assertions.assertEquals(passedReport1.getSquadId(), searchedReport2.getSquadId());
+        assertEquals(brokenReport1.getSquadId(), searchedReport1.getSquadId());
+        assertEquals(passedReport1.getSquadId(), searchedReport2.getSquadId());
     }
 
     @Test
@@ -260,13 +263,13 @@ public class ReportsRepositoryTest {
         searchedReports2 = reportsRepository.findByFilename(incompleteReport1.getFilename()).get();
 
         // Assert
-        Assertions.assertNotNull(searchedReports1);
+        assertNotNull(searchedReports1);
 
-        Assertions.assertEquals(failedReport1.getFilename(), searchedReports1.getFilename());
-        Assertions.assertEquals(incompleteReport1.getFilename(), searchedReports2.getFilename());
+        assertEquals(failedReport1.getFilename(), searchedReports1.getFilename());
+        assertEquals(incompleteReport1.getFilename(), searchedReports2.getFilename());
 
-        Assertions.assertEquals(failedReport1, searchedReports1);
-        Assertions.assertEquals(incompleteReport1, searchedReports2);
+        assertEquals(failedReport1, searchedReports1);
+        assertEquals(incompleteReport1, searchedReports2);
     }
 
     @Test
@@ -289,12 +292,12 @@ public class ReportsRepositoryTest {
         foundIncompleteReports = reportsRepository.findByReportStatus(ReportStatus.INCOMPLETE);
 
         // Assert
-        Assertions.assertEquals(0, foundIncompleteReports.size());
-        Assertions.assertEquals(1, foundPassedReports.size());
-        Assertions.assertEquals(1, foundFailedReports.size());
+        assertEquals(0, foundIncompleteReports.size());
+        assertEquals(1, foundPassedReports.size());
+        assertEquals(1, foundFailedReports.size());
 
-        Assertions.assertEquals(passedReport1, foundPassedReports.getFirst());
-        Assertions.assertEquals(failedReport1, foundFailedReports.getFirst());
+        assertEquals(passedReport1, foundPassedReports.getFirst());
+        assertEquals(failedReport1, foundFailedReports.getFirst());
     }
     
     @Test
@@ -316,9 +319,25 @@ public class ReportsRepositoryTest {
         reportsCreatedToday = reportsRepository.findByDateUploaded(dateToday);
 
         // Assert
-        Assertions.assertEquals(2, reportsCreatedToday.size());
+        assertEquals(2, reportsCreatedToday.size());
 
-        Assertions.assertEquals(brokenReport1, reportsCreatedToday.getFirst());
-        Assertions.assertEquals(incompleteReport1, reportsCreatedToday.getLast());
+        assertEquals(brokenReport1, reportsCreatedToday.getFirst());
+        assertEquals(incompleteReport1, reportsCreatedToday.getLast());
+    }
+
+    @Test
+    void ReportsRepository_deleteByFilename_DeletesReportsByFilename() {
+
+        // Arrange
+        final Reports failedReport1;
+
+        failedReport1 = reportsRepository.save(failedReport);
+
+        // Act
+        reportsRepository.deleteByFilename(failedReport1.getFilename());
+
+        // Assert
+        assertThat(reportsRepository.findById(failedReport1.getReportId()).isEmpty())
+                .isTrue();
     }
 }

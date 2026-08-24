@@ -1,8 +1,8 @@
 package com.reports.quality_assurance.controller;
 
 import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisterQualityAssuranceEngineerDTO;
-import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.RegisteredQualityAssuranceEngineerDTO;
-import com.reports.quality_assurance.model.QualityAssuranceEngineers;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.ViewEngineerDTO;
+import com.reports.quality_assurance.dtos.QualityAssuranceEngineers.ViewNewEngineerDTO;
 import com.reports.quality_assurance.service.QualityAssuranceEngineerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,27 +26,27 @@ public class EngineerController {
     private final QualityAssuranceEngineerService engineerService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisteredQualityAssuranceEngineerDTO> register(final @RequestBody RegisterQualityAssuranceEngineerDTO engineerData)
+    public ResponseEntity<ViewNewEngineerDTO> register(final @RequestBody RegisterQualityAssuranceEngineerDTO engineerData)
     {
-        final RegisteredQualityAssuranceEngineerDTO response;
+        final ViewNewEngineerDTO response;
         response = engineerService.registerNewEngineer(engineerData);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/getEngineers")
-    public List<QualityAssuranceEngineers> getAllEngineers()
+    public List<ViewEngineerDTO> getAllEngineers()
     {
-        final List<QualityAssuranceEngineers> engineersList;
+        final List<ViewEngineerDTO> engineersList;
         engineersList = engineerService.getAllEngineers();
 
         return engineersList;
     }
 
     @GetMapping("/byDateCreated")
-    public List<QualityAssuranceEngineers> getEngineersByDate(final @RequestParam(name = "startDate") String startDate,
-                                                              final @RequestParam(name = "endDate") String endDate) {
-        final List<QualityAssuranceEngineers> foundEngineers;
+    public List<ViewEngineerDTO> getEngineersByDate(final @RequestParam(name = "startDate") String startDate,
+                                         final @RequestParam(name = "endDate") String endDate) {
+        final List<ViewEngineerDTO> foundEngineers;
         foundEngineers = engineerService.getEngineersInRange(startDate, endDate);
 
         return foundEngineers;
